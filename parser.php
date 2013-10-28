@@ -1,8 +1,26 @@
 <?php
 
+//Check Inputs
+$cmdOptions = getopt('f:', array('file:'));
+  if (empty($cmdOptions) ) { 
+        exit("\nError: Input file is missing. \n\n Usage: $argv[0] --file filename\n\n"); 
+         
+    } 
+
 echo "Initializing the engine \n";
 
-$file1 = "./access_log";
+$file = isset($cmdOptions['file']) ? $cmdOptions['file'] : $cmdOptions['f'];
+
+//Validate the file
+if(file_exists($file))
+	if(is_readable($file))
+		echo "Reading File.\n";
+	else 
+		exit( "Error: Cannot Read file: $file . Exiting. \n");
+else
+	exit("Error: File Does not Exist. Exiting. \n");
+
+
 $data = array();
 $months = array(
 	'Jan' => array('count' => 0, 'data' => array()),
@@ -22,7 +40,7 @@ $months = array(
 
 //Parse the Log File
 echo "Parsing the File\n";
-$handle =  popen("grep '/img/blank.gif?op=studioLoad' " .$file1 , "r");
+$handle =  popen("grep '/img/blank.gif?op=studioLoad' " .$file , "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
 
