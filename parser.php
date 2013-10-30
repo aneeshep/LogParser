@@ -1,5 +1,6 @@
 <?php
 
+
 //Check Inputs
 $cmdOptions = getopt('f:', array('file:'));
   if (empty($cmdOptions) ) { 
@@ -23,37 +24,53 @@ else
 
 $data = array();
 $months = array(
-	'Jan' => array('count' => 0, 'data' => array()),
-	'Feb' => array('count' => 0, 'data' => array()), 
-	'Mar' => array('count' => 0, 'data' => array()), 
-	'Apr' => array('count' => 0, 'data' => array()), 
-	'May' => array('count' => 0, 'data' => array()), 
-	'Jun' => array('count' => 0, 'data' => array()), 
-	'Jul' => array('count' => 0, 'data' => array()), 
-	'Aug' => array('count' => 0, 'data' => array()), 
-	'Sep' => array('count' => 0, 'data' => array()), 
-	'Oct' => array('count' => 0, 'data' => array()), 
-	'Nov' => array('count' => 0, 'data' => array()), 
-	'Dec' => array('count' => 0, 'data' => array())
+	'Jan' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()),
+	'Feb' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Mar' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Apr' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'May' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Jun' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Jul' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Aug' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Sep' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Oct' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Nov' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
+	'Dec' => array('totalCount' => 0, 'raw' => array(), 'counts' => array())
 );
 
+$types = array('studioLoad', 'TOMCAT', 'generateWar', 'CLOUD_JEE', 'WAR', 'EAR', 'CLOUD_FOUNDRY');
 
 //Parse the Log File
 echo "Parsing the File\n";
-$handle =  popen("grep '/img/blank.gif?op=studioLoad' " .$file , "r");
+$handle =  popen("grep '/img/blank.gif?op=' " .$file , "r");
 if ($handle) {
     while (($line = fgets($handle)) !== false) {
 
         //Find Year, Month
-        $year = preg_match('/\[(.+?)\/(.+?)\/(.+?):.*\]/', $line, $matches);
+        preg_match('/\[(.+?)\/(.+?)\/(.+?):.*\]/', $line, $matches);
         
         // Insert the Year in to the Result Array
         if( ! array_key_exists($matches[3], $data))
 	        $data[$matches[3]] = $months;
 
+
+
+	    //Find the type 
+	    preg_match('/op=(.*?)&/', $line, $type);
+
 	    //Add the Data to the curresponding Month.
-	    array_push($data[$matches[3]][$matches[2]]['data'], $line);
-	    $data[$matches[3]][$matches[2]]['count']++;
+	    //array_push($data[$matches[3]][$matches[2]]['raw'], $line);
+	    
+	    if(in_array($type[1], $types))
+	    {
+	    	$data[$matches[3]][$matches[2]]['totalCount']++;
+	    	if( ! array_key_exists($type[1], $data[$matches[3]][$matches[2]]['counts']))
+	    		$data[$matches[3]][$matches[2]]['counts'][$type[1]] = 1;
+	    	else
+	    		$data[$matches[3]][$matches[2]]['counts'][$type[1]]++;
+	    }
+		
+
 
 
     }
@@ -65,39 +82,53 @@ if ($handle) {
 
 
 //Display The Result
-echo "Preparing the result\n";
-echo "
-	=============== Analytics Report ==================
-	===================================================
-	";
-
-$grandTotal = 0;
+echo "Preparing the result\n\n";
+echo "\t\t============================================== Analytics Report =====================================================\n"
+	 ."\t\t=====================================================================================================================";
 
 foreach ($data as $year => $months) {
 	
-	echo "\n\tYear : ".  $year;
-	echo "\n\n\tCounts:";
+	echo "\n\n\t\tYear : $year \n\n\n\t\t\t";
 
-	echo "\n\t\t Month \t\t Count";
-	echo "\n\t\t ----- \t\t -----";
-
-	$totalForYear = 0;
-	foreach ($months as $month => $value) {
+	foreach ($months as $monthName => $value) {
 		
-		echo "\n\t\t ". $month . "\t\t ". $value['count'];
-		$totalForYear += $value['count'];
+		echo "\t $monthName ";	
+
 	}
-	echo "\n\t\t ----------------------";
-	echo "\n\t\t Total: \t " . $totalForYear;
+	echo "\tTotal";
+	echo "\n\t\t\t\t --- \t --- \t --- \t --- \t --- \t --- \t --- \t --- \t --- \t --- \t --- \t ---\t-----\n\t";
 
-	$grandTotal += $totalForYear;
+	
+	foreach ($types as $type) {
 
+		$totalForYear = 0;
+		printf("\n\n\t\t%-10s", $type);
+		foreach ($months as $month => $value) {
+
+			if(isset($value['counts'][$type]))
+			{
+				echo "\t " . $value['counts'][$type];
+				$totalForYear += $value['counts'][$type];
+			}
+			else
+			{
+				echo "\t 0";
+			}
+		
+			
+			
+		}
+		echo "\t$totalForYear";
+		echo "\n\t";
+	}
+	
 }
 
-echo "\n\n\t ---------------------------------------------------";
+echo "\n\n\t\t-------------------------------------------------------------------------------------------------------------------";
 
-echo "\n\t\t\t\t\t Grand Total : " . $grandTotal;
-echo "\n\n\t================= Analytics End ====================
-	====================================================";
+
+echo "\n\t\t============================================== Analytics Ends =====================================================\n"
+	 ."\t\t===================================================================================================================\n\n";
 
 ?>
+
