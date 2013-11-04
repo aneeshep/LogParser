@@ -3,10 +3,8 @@
 
 //Check Inputs
 $cmdOptions = getopt('f:', array('file:'));
-  if (empty($cmdOptions) ) { 
-        exit("\nError: Input file is missing. \n\n Usage: $argv[0] --file filename\n\n"); 
-         
-    } 
+  if (empty($cmdOptions))
+        exit("\nError: Input file is missing. \n\n Usage: $argv[0] --file filename\n\n");    
 
 echo "Initializing the engine \n";
 
@@ -21,24 +19,26 @@ if(file_exists($file))
 else
 	exit("Error: File Does not Exist. Exiting. \n");
 
+//Types to track
+$types = array('studioLoad', 'TOMCAT', 'generateWar', 'CLOUD_JEE', 'WAR', 'EAR', 'CLOUD_FOUNDRY');
 
 $data = array();
 $months = array(
-	'Jan' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()),
-	'Feb' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Mar' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Apr' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'May' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Jun' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Jul' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Aug' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Sep' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Oct' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Nov' => array('totalCount' => 0, 'raw' => array(), 'counts' => array()), 
-	'Dec' => array('totalCount' => 0, 'raw' => array(), 'counts' => array())
+	'Jan' => array( 'counts' => array()),
+	'Feb' => array( 'counts' => array()), 
+	'Mar' => array( 'counts' => array()), 
+	'Apr' => array( 'counts' => array()), 
+	'May' => array( 'counts' => array()), 
+	'Jun' => array( 'counts' => array()), 
+	'Jul' => array( 'counts' => array()), 
+	'Aug' => array( 'counts' => array()), 
+	'Sep' => array( 'counts' => array()), 
+	'Oct' => array( 'counts' => array()), 
+	'Nov' => array( 'counts' => array()), 
+	'Dec' => array( 'counts' => array())
 );
 
-$types = array('studioLoad', 'TOMCAT', 'generateWar', 'CLOUD_JEE', 'WAR', 'EAR', 'CLOUD_FOUNDRY');
+
 
 //Parse the Log File
 echo "Parsing the File\n";
@@ -60,10 +60,9 @@ if ($handle) {
 
 	    //Add the Data to the curresponding Month.
 	    //array_push($data[$matches[3]][$matches[2]]['raw'], $line);
-	    
 	    if(in_array($type[1], $types))
 	    {
-	    	$data[$matches[3]][$matches[2]]['totalCount']++;
+	    	
 	    	if( ! array_key_exists($type[1], $data[$matches[3]][$matches[2]]['counts']))
 	    		$data[$matches[3]][$matches[2]]['counts'][$type[1]] = 1;
 	    	else
