@@ -16,4 +16,4 @@ eg: `php parser.php ./accesslog`
 Sample Output
 --------------
 
-![sample output](https://lh4.googleusercontent.com/ykhtxwe8R2Wm4nWSuir29IdVgaXopMquA-AIGgW9ERnWFSNnmJgnO_Zgxsk4R4XpIGNneXZ5x6U)
+![sample output](https://raw.github.com/aneeshep/LogParser/master/output/output.png)
